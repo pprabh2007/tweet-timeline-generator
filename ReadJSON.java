@@ -47,16 +47,28 @@ public class ReadJSON {
 			e.printStackTrace();
 		}
 		
-		/*File currentDir=new File(".");
+		/*File currentDir=new File(".");  //USE "." for current directory
 		File[] fileList=currentDir.listFiles();
 		for(File f: fileList)
 		{
 			System.out.println(f.getName());
 		}*/
 		
-		read("statuses.log.2013-03-28-09.gz");
 		
-		//read("sample.zip");
+		
+		File dataDir=new File("data");
+		FilenameFilter gzFiles;
+		gzFiles=(File dir, String name)->name.endsWith(".gz"); 
+		
+		File[] fileList=dataDir.listFiles(gzFiles);
+	
+		for(File f: fileList)
+		{
+			System.out.println(f.getName());
+			read(dataDir.getName()+"/"+f.getName());
+		}
+		//read("data/statuses.log.2013-03-28-09.gz");
+		
 	}
 	
 	public static void read(String name) 
@@ -78,7 +90,7 @@ public class ReadJSON {
 	    		{
 		    		Tweet t=new Tweet(line);
 		    		os.writeObject(t);
-		    		t.printTweet();
+		    		//t.printTweet();
 	    		}
 	    		catch(ArrayIndexOutOfBoundsException e)
 	    		{
