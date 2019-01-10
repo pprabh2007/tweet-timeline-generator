@@ -1,7 +1,6 @@
 import java.io.*;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+
+import java.util.zip.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -12,6 +11,7 @@ public class ReadJSON {
 
 	public static void main (String args[])
 	{
+		/*
 		File f=new File("tweets.ser");
 		try
 		{
@@ -20,7 +20,7 @@ public class ReadJSON {
 				f.delete();
 			}
 			
-			f.createNewFile();
+			f.createNewFile();	
 			
 		}
 		catch(Exception e)
@@ -28,9 +28,33 @@ public class ReadJSON {
 			System.out.println("Error!");
 			e.printStackTrace();
 			System.exit(-1);
+		}*/
+		
+		/*FIRST TWEET SHOULD BE WRTITTEN WITH NORMAL OBJECT OUTPUT STREAM*/
+		try
+		{
+			Tweet streamWriterTweet=new Tweet();
+			ObjectOutputStream os_demo=new ObjectOutputStream(new FileOutputStream("tweets.ser"));
+			os_demo.writeObject(streamWriterTweet);
+			os_demo.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		
-		read("sample.zip");
+		/*File currentDir=new File(".");
+		File[] fileList=currentDir.listFiles();
+		for(File f: fileList)
+		{
+			System.out.println(f.getName());
+		}*/
+		
+		read("statuses.log.2013-03-28-09.gz");
 		
 		//read("sample.zip");
 	}
@@ -39,33 +63,32 @@ public class ReadJSON {
 	{
 
 	    try  
-	    {
-	    	ZipFile zf = new ZipFile(name);
-		    Enumeration<?> entries = zf.entries();
-	
-		    FileOutputStream fileStream=new FileOutputStream("tweets.ser", true);
+	    {   	
+	    	FileInputStream fos=new FileInputStream(name);
+	    	GZIPInputStream gos=new GZIPInputStream(fos);
+	    	BufferedReader reader=new BufferedReader(new InputStreamReader(gos));
+	    	
+	    	FileOutputStream fileStream=new FileOutputStream("tweets.ser", true);
 		    AppendingObjectOutputStream os=new AppendingObjectOutputStream(fileStream);
-		      
-			while (entries.hasMoreElements()) 
-			{
-				ZipEntry ze = (ZipEntry) entries.nextElement();
-		        BufferedReader br = new BufferedReader(new InputStreamReader(zf.getInputStream(ze)));
-		        String line;
-		        
-		        while ((line = br.readLine()) != null) 
-		        {
-						Tweet t=new Tweet(line);
-						//Tweet t2=new Tweet(line);
-						//t.printTweet();;
-						os.writeObject(t);
-						os.write('\n'); /*MAKE SURE TO CONSIDER THIS WHILE READING THE OBJECTS*/
-						//os.writeObject(t2);
-				}
-		        br.close();
-			}
-			
-			zf.close();
+	    	
+	    	String line;
+	    	while((line=reader.readLine())!=null)
+	    	{
+	    		try
+	    		{
+		    		Tweet t=new Tweet(line);
+		    		//os.writeObject(t);
+		    		t.printTweet();
+	    		}
+	    		catch(ArrayIndexOutOfBoundsException e)
+	    		{
+	    			e.printStackTrace();
+	    		}
+	    	}
+	    	
+	    	reader.close();
 	    	os.close();
+	    	
 	    } 
 		catch (IOException e) 
 	    {
@@ -79,14 +102,25 @@ class Tweet implements Serializable{
 	
 	static final long serialVersionUID=1L; 
 	
+	Tweet()
+	{
+		this.id="";
+		this.content="";
+		this.day_of_week="";
+		this.month="";
+		this.date=0;
+		this.hour=0;
+		this.second=0;
+		this.minute=0;
+	}
+	
 	Tweet(String t)
 	{
 		JSONParser parser = new JSONParser();
 		try
 		{
 			Object obj = parser.parse(t);
-			JSONArray array = (JSONArray)(obj);
-			JSONObject dom= (JSONObject)(array.get(0));
+			JSONObject dom= (JSONObject)(obj);
 			
 			this.id=dom.get("id")+"";
 			this.content=dom.get("text")+"";
