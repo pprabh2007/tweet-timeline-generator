@@ -77,12 +77,17 @@ public class ReadJSON {
 	    		try
 	    		{
 		    		Tweet t=new Tweet(line);
-		    		//os.writeObject(t);
+		    		os.writeObject(t);
 		    		t.printTweet();
 	    		}
 	    		catch(ArrayIndexOutOfBoundsException e)
 	    		{
 	    			e.printStackTrace();
+	    		}
+	    		catch (Exception e)
+	    		{
+	    			e.printStackTrace();
+	    			System.exit(-1);
 	    		}
 	    	}
 	    	

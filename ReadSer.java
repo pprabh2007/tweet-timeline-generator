@@ -11,9 +11,13 @@ public class ReadSer {
 			FileInputStream fis=new FileInputStream("tweets.ser");
 			ObjectInputStream ois=new ObjectInputStream(fis);
 			
-			Tweet x=(Tweet)ois.readObject();
-			x.printTweet();
+			ois.readObject(); //Throwing the Dummy Object Away
 			
+			Tweet x;
+			while((x=(Tweet)ois.readObject())!=null)
+			{
+				x.printTweet();
+			}
 			fis.close();
 		}
 		catch(ClassNotFoundException e)
