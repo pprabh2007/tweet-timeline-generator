@@ -18,8 +18,13 @@ public class textProcessing {
 		*/
 		
 		
-		String a="      |    !@  hello     how     are     you      |      ";
-		String b="|how   are  !@    you|      ";
+		String a="   !@     how     are     you            ";
+		String b="how   are  !@    you      ";
+		
+
+		a=str_pre(a);
+		b=str_pre(b);
+		
 		
 		a=a.trim();
 		b=b.trim();
@@ -54,13 +59,12 @@ public class textProcessing {
 			}
 		}
 		
-		a_final=str_pre(a_final);
-		b_final=str_pre(b_final);
 		
-		double a_double=findWordTrigrams(a_final, b_final);
+		double trigram_feature=findWordTrigrams(a_final, b_final);
 		
 		System.out.println(a_final);
 		System.out.println(b_final);
+		System.out.println(trigram_feature);
 		
 	}
 	
@@ -68,8 +72,26 @@ public class textProcessing {
 	{
 		int a_length=a.length();
 		int b_length=b.length();
-		return 0.0;		
 		
+		Set<String> A=new HashSet<String>();
+		Set<String> B=new HashSet<String>();
+		
+		for(int i=2; i<a_length; i++)
+		{
+			A.add(a.substring(i-2, i+1));
+		}
+		for(int i=2; i<b_length; i++)
+		{
+			B.add(b.substring(i-2, i+1));
+		}
+		
+		Set<String> U=new HashSet<String>();
+		Set<String> I=new HashSet<String>();
+		
+		union(A, B, U);
+		intersection(A, B, I);
+		
+		return ( ((double)I.size()) / U.size());
 		
 	}
 	
@@ -102,14 +124,14 @@ public class textProcessing {
 		}
 	}
 	
-	public static void intersection(Set<String> A, Set<String> B, Set<String> U)
+	public static void intersection(Set<String> A, Set<String> B, Set<String> I)
 	{
 		for(Iterator<String> iter=A.iterator(); iter.hasNext();)
 		{
 			String temp=iter.next();
 			if(B.contains(temp))
 			{
-				U.add(temp);
+				I.add(temp);
 			}
 		}
 		
