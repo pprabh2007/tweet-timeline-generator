@@ -4,6 +4,11 @@ public class textProcessing {
 	
 	public static void main(String args[])
 	{
+		/*		
+		System.out.println(findCommonWords("thou shall perish", "excuse shall hhey"));
+		System.exit(0);
+		*/
+		
 		/*
 		Set<String> U=new HashSet<String>();
 		Set<String> A=new HashSet<String>();
@@ -67,6 +72,49 @@ public class textProcessing {
 		System.out.println(trigram_feature);
 		
 	}
+	
+	public static double findCommonWords(String a, String b)
+	{
+		int a_length=a.length();
+		int b_length=b.length();
+		
+		Set<String> A=new HashSet<String>();
+		Set<String> B=new HashSet<String>();
+		
+		int prev=-1;
+		int i=0;
+		for(i=0; i<a_length; i++)
+		{
+			if(a.charAt(i)==' ')
+			{
+				A.add(a.substring(prev+1, i));
+				prev=i;
+			}
+		}
+		A.add(a.substring(prev+1, i));
+		//System.out.println(A);
+		
+		prev=-1;
+		for(i=0; i<b_length; i++)
+		{
+			if(b.charAt(i)==' ')
+			{
+				B.add(b.substring(prev+1, i));
+				prev=i;
+			}
+		}
+		B.add(b.substring(prev+1, i));
+		//System.out.println(B);
+		
+		Set<String> U=new HashSet<String>();
+		Set<String> I=new HashSet<String>();
+		
+		union(A, B, U);
+		intersection(A, B, I);
+		
+		return ( ((double)I.size()) / U.size());
+	}
+	
 	
 	public static double findWordTrigrams(String a, String b)
 	{
