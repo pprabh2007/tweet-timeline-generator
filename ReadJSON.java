@@ -3,32 +3,21 @@ import java.io.*;
 import java.util.zip.*;
 
 import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
+
+import com.cybozu.labs.langdetect.*; 
 
 public class ReadJSON {
 
 	public static void main (String args[])
-	{
+	{	
 		/*
-		File f=new File("tweets.ser");
-		try
-		{
-			if(f.exists())
-			{
-				f.delete();
-			}
-			
-			f.createNewFile();	
-			
-		}
-		catch(Exception e)
-		{
-			System.out.println("Error!");
-			e.printStackTrace();
-			System.exit(-1);
-		}*/
+		System.out.println(Language.get_lang("salut commment"));
+		System.out.println(Language.get_lang("Despacito"));
+		System.out.println(Language.get_lang("Hey there"));
+		System.exit(0);
+		*/
 		
 		/*FIRST TWEET SHOULD BE WRTITTEN WITH NORMAL OBJECT OUTPUT STREAM*/
 		try
@@ -64,9 +53,10 @@ public class ReadJSON {
 	
 		for(File f: fileList)
 		{
-			System.out.println(f.getName());
+			//System.out.println(f.getName());
 			read(dataDir.getName()+"/"+f.getName());
 		}
+		
 		//read("data/statuses.log.2013-03-28-09.gz");
 		
 	}
@@ -89,10 +79,17 @@ public class ReadJSON {
 	    		try
 	    		{
 		    		Tweet t=new Tweet(line);
-		    		os.writeObject(t);
+		    		if(Language.get_lang(t.content).equals("en"))
+		    		{
+		    			os.writeObject(t);
+		    		}
 		    		//t.printTweet();
 	    		}
 	    		catch(ArrayIndexOutOfBoundsException e)
+	    		{
+	    			e.printStackTrace();
+	    		}
+	    		catch(NullPointerException e)
 	    		{
 	    			e.printStackTrace();
 	    		}
@@ -197,3 +194,33 @@ class AppendingObjectOutputStream extends ObjectOutputStream {
 	  }
 
 	}
+
+class Language
+{
+	
+	static {
+		try
+		{
+			DetectorFactory.loadProfile("C:/Users/HP/Desktop/langdetect/profiles");
+			System.out.println("Language Profiles Loaded");
+		}
+		catch(LangDetectException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	public static String get_lang(String sample)
+	{
+		try
+		{	
+			Detector d =DetectorFactory.create();
+			d.append(sample);
+			return (d.detect());
+		}
+		catch(LangDetectException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+}
