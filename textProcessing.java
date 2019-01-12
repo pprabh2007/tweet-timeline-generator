@@ -1,41 +1,27 @@
 import edu.stanford.nlp.tagger.maxent.*;
 import java.util.*;
 
-public class textProcessing {
+public class TextProcessing {
 	
-	public static void main(String args[])
+	static {
+		tagger = new MaxentTagger("taggers/english-bidirectional-distsim.tagger");
+	}
+	
+	String a;
+	String b;
+	static MaxentTagger tagger;
+	String features="";
+	
+	TextProcessing(Tweet a, Tweet b)
 	{
-		/*
-		double[] ta=new double[3];
-		findNounsAdjectives("james and charles are fat kids", "peter and charles are fat men kids", ta );
-		
-		System.out.println(ta[0]);
-		System.out.println(ta[1]);
-		System.out.println(ta[2]);
-		System.exit(0);
-		*/
-		/*		
-		System.out.println(findCommonWords("thou shall perish", "excuse shall hhey"));
-		System.exit(0);
-		*/
-		
-		/*
-		Set<String> U=new HashSet<String>();
-		Set<String> A=new HashSet<String>();
-		A.add("hello");
-		Set<String> B=new HashSet<String>();
-		B.add("mello");
-		
-		//union(A, B, U);
-		//intersection(A, B, U);
-		System.out.println(U);
-		System.exit(0);
-		*/
+		this.a=a.content;
+		this.b=b.content;
 		
 		
-		String a="   !@     how     are     you            ";
-		String b="how   are  !@    you      ";
-		
+	}
+	
+	String getFeatures()
+	{
 		a=str_pre(a);
 		b=str_pre(b);
 		
@@ -72,6 +58,7 @@ public class textProcessing {
 			}
 		}
 		
+		//System.out.println(a_final+"\n"+b_final);
 		
 		double trigram_feature=findWordTrigrams(a_final, b_final);
 		double common_feature=findCommonWords(a_final, b_final);
@@ -93,13 +80,12 @@ public class textProcessing {
 		double common_noun_feature=f_array[1];
 		double adjective_feature=f_array[2];
 		
-		
-	
+		return common_feature+" "+word_bigram_feature+" "+trigram_feature+" "+proper_noun_feature+" "+common_noun_feature+" "+adjective_feature;
 	}
 	
-	public static void findNounsAdjectives(String a, String b, double[] f_array)
+	public void findNounsAdjectives(String a, String b, double[] f_array)
 	{
-		MaxentTagger tagger = new MaxentTagger("taggers/english-bidirectional-distsim.tagger");
+		
 		String a_tagged=tagger.tagString(a);
 		String b_tagged=tagger.tagString(b);
 		
@@ -178,7 +164,7 @@ public class textProcessing {
 		
 	}
 	
-	public static double findBigrams(String a, String b)
+	public double findBigrams(String a, String b)
 	{
 		int a_length=a.length();
 		int b_length=b.length();
@@ -211,7 +197,7 @@ public class textProcessing {
 		
 	}
 	
-	public static double findCommonWords(String a, String b)
+	public double findCommonWords(String a, String b)
 	{
 		int a_length=a.length();
 		int b_length=b.length();
@@ -254,7 +240,7 @@ public class textProcessing {
 	}
 	
 	
-	public static double findWordTrigrams(String a, String b)
+	public double findWordTrigrams(String a, String b)
 	{
 		int a_length=a.length();
 		int b_length=b.length();
@@ -280,10 +266,10 @@ public class textProcessing {
 		return ( ((double)I.size()) / U.size());
 		
 	}
-	
-	public static String str_pre(String input_string) //removes delimiters and converts to lower case
+
+	public  String str_pre(String input_string) //removes delimiters and converts to lower case
 	{
-		String delimiters = "_,.!?/&-:;@\\\'";
+		String delimiters = "_#,.!?/&-:;@\\\'";
 		
 		String output_string="";
 		int length=input_string.length();
@@ -302,7 +288,7 @@ public class textProcessing {
 		return output_string;
 	}
 	
-	public static void union(Set<String> A, Set<String> B, Set<String> U)
+	public void union(Set<String> A, Set<String> B, Set<String> U)
 	{
 		for(Iterator<String> iter=A.iterator(); iter.hasNext();)
 		{
@@ -314,7 +300,7 @@ public class textProcessing {
 		}
 	}
 	
-	public static void intersection(Set<String> A, Set<String> B, Set<String> I)
+	public void intersection(Set<String> A, Set<String> B, Set<String> I)
 	{
 		for(Iterator<String> iter=A.iterator(); iter.hasNext();)
 		{
@@ -326,102 +312,5 @@ public class textProcessing {
 		}
 		
 	}
-	
 }
-/* PYTHON IMPLEMENTATION- REDUNDANT
-
-def str_pre(input_string): #removes delimiters and converts to lower case
 	
-
-	delimiters = [",", ".", "!", "?", "/", "&", "-", ":", ";", "@", "'"]	
-	output_string = ""
-
-	for ch in input_string:
-		
-		if(ch in delimiters):
-			output_string = output_string +" "
-		else:
-			output_string= output_string+ch
-
-
-	return (output_string.lower())
-
-
-def word_comp(wordArr1, wordArr2): 
-
-	'''
-	1. finds proportion of similar words 
-	2. pass word array of the string obtained from delimiter-free lower case string 
-
-	'''
-
-	A=set(wordArr1)
-	B=set(wordArr2)
-
-	I=set.intersection(A, B)
-	U=set.union(A, B)
-
-	return (len(I)/len(U))
-
-
-def word_bigram(wordArr1, wordArr2):
-
-	'''
-	1. finds proportion of similar word-bigrams 
-	2. pass word array of the string obtained from delimiter-free lower case string 
-
-	'''
-	bigramArr1=[]
-	bigramArr2=[]
-
-	length_1=len(wordArr1)
-	length_2=len(wordArr2)
-
-	for i in range(length_1-1):
-		bigramArr1.append(wordArr1[i]+wordArr1[i+1])
-
-	for i in range(length_2-1):
-		bigramArr2.append(wordArr2[i]+wordArr2[i+1])
-
-	A=set(bigramArr1)
-	B=set(bigramArr2)
-
-	I=set.intersection(A, B)
-	U=set.union(A, B)
-
-	return (len(I)/ len (U))
-
-
-def char_trigram(wordArr1, wordArr2):
-
-	'''
-	1. finds proportion of similar character-trigrams 
-	2. pass word array of the string obtained from delimiter-free lower case string 
-
-	'''
-
-	string_1=" ".join(wordArr1)
-	string_2=" ".join(wordArr2)
-
-	trigramArr1=[]
-	trigramArr2=[]
-
-	length_1=len(string_1)
-	length_2=len(string_2)
-
-
-	for i in range(length_1-2):
-		trigramArr1.append(string_1[i]+string_1[i+1]+string_1[i+2])
-
-	for i in range(length_2-2):
-		trigramArr2.append(string_2[i]+string_2[i+1]+string_2[i+2])
-
-	A=set(trigramArr1)
-	B=set(trigramArr2)
-
-	I=set.intersection(A, B)
-	U=set.union(A, B)
-
-	return (len(I)/len(U))
-}
-*/
