@@ -12,6 +12,8 @@ public class ReadJSON {
 
 	public static void main (String args[])
 	{	
+		
+		StanfordLemmatizer slem = new StanfordLemmatizer();
 		/*
 		System.out.println(Language.get_lang("salut commment"));
 		System.out.println(Language.get_lang("Despacito"));
@@ -54,16 +56,16 @@ public class ReadJSON {
 		for(File f: fileList)
 		{
 			//System.out.println(f.getName());
-			read(dataDir.getName()+"/"+f.getName());
+			read(dataDir.getName()+"/"+f.getName(), slem);
 		}
 		
 		//read("data/statuses.log.2013-03-28-09.gz");
 		
 	}
 	
-	public static void read(String name) 
+	public static void read(String name, StanfordLemmatizer slem) 
 	{
-
+		
 	    try  
 	    {   	
 	    	FileInputStream fos=new FileInputStream(name);
@@ -79,8 +81,10 @@ public class ReadJSON {
 	    		try
 	    		{
 		    		Tweet t=new Tweet(line);
-		    		if(Language.get_lang(t.content).equals("en"))
+		    		
+		    		if(!(t.content.equals("")) && Language.get_lang(t.content).equals("en"))
 		    		{
+		    			t.getLemmatized(slem);
 		    			os.writeObject(t);
 		    		}
 		    		//t.printTweet();
@@ -154,8 +158,22 @@ class Tweet implements Serializable{
 		catch (ParseException e)
 		{
 			e.printStackTrace();
+			this.id="";
+			this.content="";
+			this.day_of_week="";
+			this.month="";
+			this.date=0;
+			this.hour=0;
+			this.second=0;
+			this.minute=0;
+			
 		}
 		
+	}
+	
+	void getLemmatized(StanfordLemmatizer slem)
+	{
+		this.content=slem.lemmatize(this.content);
 	}
 	
 	String id;
