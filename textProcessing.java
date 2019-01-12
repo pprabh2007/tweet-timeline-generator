@@ -28,10 +28,8 @@ public class textProcessing {
 		String a="   !@     how     are     you            ";
 		String b="how   are  !@    you      ";
 		
-
 		a=str_pre(a);
 		b=str_pre(b);
-		
 		
 		a=a.trim();
 		b=b.trim();
@@ -68,10 +66,37 @@ public class textProcessing {
 		
 		
 		double trigram_feature=findWordTrigrams(a_final, b_final);
+		double common_feature=findCommonWords(a_final, b_final);
+		double word_bigram_feature=findBigrams(a_final, b_final);
+	}
+	
+	public static double findBigrams(String a, String b)
+	{
+		int a_length=a.length();
+		int b_length=b.length();
 		
-		System.out.println(a_final);
-		System.out.println(b_final);
-		System.out.println(trigram_feature);
+		String[] a_words=a.split(" ", 0);
+		String[] b_words=b.split(" ", 0);
+		
+		Set<String> A=new HashSet<String>();
+		Set<String> B=new HashSet<String>();
+		
+		for(int i=1; i<a_length; i++)
+		{
+			A.add(a_words[i-1]+a_words[i]);			
+		}
+		for(int i=1; i<b_length; i++)
+		{
+			B.add(b_words[i-1]+b_words[i]);			
+		}
+		
+		Set<String> U=new HashSet<String>();
+		Set<String> I=new HashSet<String>();
+		
+		union(A, B, U);
+		intersection(A, B, I);
+		
+		return ( ((double)I.size()) / U.size());
 		
 	}
 	
