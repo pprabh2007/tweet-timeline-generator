@@ -1,11 +1,13 @@
-//IP: 10.35.32.101
-
+import edu.stanford.nlp.tagger.maxent.*;
 import java.util.*;
 
 public class textProcessing {
 	
 	public static void main(String args[])
 	{
+		findCommonNouns("", "");
+		System.exit(0);
+		
 		/*		
 		System.out.println(findCommonWords("thou shall perish", "excuse shall hhey"));
 		System.exit(0);
@@ -68,6 +70,25 @@ public class textProcessing {
 		double trigram_feature=findWordTrigrams(a_final, b_final);
 		double common_feature=findCommonWords(a_final, b_final);
 		double word_bigram_feature=findBigrams(a_final, b_final);
+		
+		double[] f_array=new double[3];
+		findNounsAdjectives(a_final, b_final, f_array);
+		
+		double common_noun_feature=f_array[0];
+		double proper_noun_feature=f_array[1];
+		double adjective_feature=f_array[1];
+	
+	}
+	
+	public static void findNounsAdjectives(String a, String b, double[] f_array)
+	{
+		MaxentTagger tagger = new MaxentTagger("taggers/english-bidirectional-distsim.tagger");
+		String a_tagged=tagger.tagString(a);
+		String b_tagged=tagger.tagString(b);
+		
+		
+		
+		
 	}
 	
 	public static double findBigrams(String a, String b)
@@ -172,7 +193,7 @@ public class textProcessing {
 	
 	public static String str_pre(String input_string) //removes delimiters and converts to lower case
 	{
-		String delimiters = ",.!?/&-:;@\\\'";
+		String delimiters = "_,.!?/&-:;@\\\'";
 		
 		String output_string="";
 		int length=input_string.length();
@@ -184,7 +205,7 @@ public class textProcessing {
 			}
 		}
 		
-		return output_string.toLowerCase();
+		return output_string;
 	}
 	
 	public static void union(Set<String> A, Set<String> B, Set<String> U)
