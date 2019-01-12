@@ -5,9 +5,15 @@ public class textProcessing {
 	
 	public static void main(String args[])
 	{
-		findCommonNouns("", "");
-		System.exit(0);
+		/*
+		double[] ta=new double[3];
+		findNounsAdjectives("james and charles are fat kids", "peter and charles are fat men kids", ta );
 		
+		System.out.println(ta[0]);
+		System.out.println(ta[1]);
+		System.out.println(ta[2]);
+		System.exit(0);
+		*/
 		/*		
 		System.out.println(findCommonWords("thou shall perish", "excuse shall hhey"));
 		System.exit(0);
@@ -71,12 +77,23 @@ public class textProcessing {
 		double common_feature=findCommonWords(a_final, b_final);
 		double word_bigram_feature=findBigrams(a_final, b_final);
 		
+		trigram_feature=Double.isNaN(trigram_feature)?0:trigram_feature;
+		common_feature=Double.isNaN(common_feature)?0:common_feature;
+		word_bigram_feature=Double.isNaN(word_bigram_feature)?0:word_bigram_feature;
+		
 		double[] f_array=new double[3];
 		findNounsAdjectives(a_final, b_final, f_array);
 		
-		double common_noun_feature=f_array[0];
-		double proper_noun_feature=f_array[1];
-		double adjective_feature=f_array[1];
+		for(int i=0; i<3; i++)
+		{
+			f_array[i]=Double.isNaN(f_array[i])?0:f_array[i];
+		}
+		
+		double proper_noun_feature=f_array[0];
+		double common_noun_feature=f_array[1];
+		double adjective_feature=f_array[2];
+		
+		
 	
 	}
 	
@@ -86,8 +103,78 @@ public class textProcessing {
 		String a_tagged=tagger.tagString(a);
 		String b_tagged=tagger.tagString(b);
 		
+		String[] a_words=a.split(" ", 0);
+		String[] b_words=b.split(" ", 0);
+		String[] a_tagged_words=a_tagged.split(" ", 0);
+		String[] b_tagged_words=b_tagged.split(" ", 0);
 		
+		Set<String> A_NP=new HashSet<String>();
+		Set<String> B_NP=new HashSet<String>();
+		Set<String> U_NP=new HashSet<String>();
+		Set<String> I_NP=new HashSet<String>();
 		
+		Set<String> A_NC=new HashSet<String>();
+		Set<String> B_NC=new HashSet<String>();
+		Set<String> U_NC=new HashSet<String>();
+		Set<String> I_NC=new HashSet<String>();
+		
+		Set<String> A_ADJ=new HashSet<String>();
+		Set<String> B_ADJ=new HashSet<String>();
+		Set<String> U_ADJ=new HashSet<String>();
+		Set<String> I_ADJ=new HashSet<String>();
+		
+		int a_tagged_words_length=a_tagged_words.length;
+		int b_tagged_words_length=b_tagged_words.length;
+		for(int i=0; i<a_tagged_words_length; i++)
+		{
+			if(a_tagged_words[i].indexOf("_NNP")!=-1)
+			{
+				A_NP.add(a_words[i]);
+			}
+			else if(a_tagged_words[i].indexOf("_NN")!=-1)
+			{
+				A_NC.add(a_words[i]);
+			}
+			else if(a_tagged_words[i].indexOf("_JJ")!=-1)
+			{
+				A_ADJ.add(a_words[i]);
+			}
+			
+		}
+		for(int i=0; i<b_tagged_words_length; i++)
+		{
+			if(b_tagged_words[i].indexOf("_NNP")!=-1)
+			{
+				B_NP.add(b_words[i]);
+			}
+			else if(b_tagged_words[i].indexOf("_NN")!=-1)
+			{
+				B_NC.add(b_words[i]);
+			}
+			else if(b_tagged_words[i].indexOf("_JJ")!=-1)
+			{
+				B_ADJ.add(b_words[i]);
+			}
+			
+		}
+		/*
+		
+	    System.out.println(a_tagged);
+	 	System.out.println(b_tagged);
+		 
+		*/
+		
+		union(A_NP, B_NP, U_NP);
+		union(A_NC, B_NC, U_NC);
+		union(A_ADJ, B_ADJ, U_ADJ);
+		
+		intersection(A_NP, B_NP, I_NP);
+		intersection(A_NC, B_NC, I_NC);
+		intersection(A_ADJ, B_ADJ, I_ADJ);
+		
+		f_array[0]=( ((double)I_NP.size()) / U_NP.size());
+		f_array[1]=( ((double)I_NC.size()) / U_NC.size());
+		f_array[2]=( ((double)I_ADJ.size()) / U_ADJ.size());
 		
 	}
 	
@@ -99,14 +186,17 @@ public class textProcessing {
 		String[] a_words=a.split(" ", 0);
 		String[] b_words=b.split(" ", 0);
 		
+		int a_words_length=a_words.length;
+		int b_words_length=b_words.length;
+		
 		Set<String> A=new HashSet<String>();
 		Set<String> B=new HashSet<String>();
 		
-		for(int i=1; i<a_length; i++)
+		for(int i=1; i<a_words_length; i++)
 		{
 			A.add(a_words[i-1]+a_words[i]);			
 		}
-		for(int i=1; i<b_length; i++)
+		for(int i=1; i<b_words_length; i++)
 		{
 			B.add(b_words[i-1]+b_words[i]);			
 		}
@@ -238,7 +328,8 @@ public class textProcessing {
 	}
 	
 }
-/*
+/* PYTHON IMPLEMENTATION- REDUNDANT
+
 def str_pre(input_string): #removes delimiters and converts to lower case
 	
 
