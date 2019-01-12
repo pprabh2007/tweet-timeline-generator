@@ -203,6 +203,10 @@ public class textProcessing {
 			{
 				output_string+=input_string.charAt(i);
 			}
+			else
+			{
+				output_string+=" ";
+			}
 		}
 		
 		return output_string;
