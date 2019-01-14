@@ -55,7 +55,7 @@ public class ReadSer {
 			
 			for(int i=0; i<number_of_tweets; i++)
 			{
-				for(int j=i; j<number_of_tweets; j++)
+				for(int j=i; j<number_of_tweets; j++) //make it i+1 if you do not need (i, i) features in Neural Network
 				{
 					TextProcessing tps=new TextProcessing(tweet_list.get(i), tweet_list.get(j));
 					String features_of_pair=(tps.getFeatures());
