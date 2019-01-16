@@ -12,6 +12,8 @@ Follow the following steps:
 
 ## PRIVATE DETAILS ##
 IP: 10.35.32.101
+
 Username: shobhit
+
 Password: Password@123
 
