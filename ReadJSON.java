@@ -219,7 +219,7 @@ class Language
 	static {
 		try
 		{
-			DetectorFactory.loadProfile("C:/Users/HP/Desktop/langdetect/profiles");
+			DetectorFactory.loadProfile("lib/ld/profiles");
 			System.out.println("Language Profiles Loaded");
 		}
 		catch(LangDetectException e)

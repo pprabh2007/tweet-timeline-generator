@@ -12,6 +12,7 @@ public class ReadSer {
 	
 	public static void main(String args[])
 	{
+		
 		ArrayList<Tweet> tweet_list=new ArrayList<Tweet>();
 		try
 		{
@@ -25,6 +26,7 @@ public class ReadSer {
 			while((x=(Tweet)ois.readObject())!=null)
 			{
 				tweet_list.add(x);
+				//x.printTweet();
 			}
 			
 			fis.close();
@@ -45,7 +47,9 @@ public class ReadSer {
 			OutputStream writer = new FileOutputStream("Datasheet.xls");
 			Sheet sheet = workbook.createSheet("Features");
 			
+			
 			int number_of_tweets=tweet_list.size();
+			//System.out.println(number_of_tweets);
 			Row[] rows=new Row[number_of_tweets];
 			
 			for(int i=0; i<number_of_tweets; i++)
@@ -67,6 +71,7 @@ public class ReadSer {
 					 Cell cell_two = rows[j].createCell(i);
 					 cell_two.setCellValue(features_of_pair); 
 					 System.out.println(i*number_of_tweets+j);
+
 				}
 			}
 			workbook.write(writer);
