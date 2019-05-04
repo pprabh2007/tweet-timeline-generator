@@ -6,48 +6,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
-import com.cybozu.labs.langdetect.*; 
+import lemurproject.indri.*;
 
-public class ReadJSON {
+
+public class MakeIndex {
 
 	public static void main (String args[])
 	{	
 		
-		StanfordLemmatizer slem = new StanfordLemmatizer();
-		/*
-		System.out.println(Language.get_lang("salut commment"));
-		System.out.println(Language.get_lang("Despacito"));
-		System.out.println(Language.get_lang("Hey there"));
-		System.exit(0);
-		*/
-		
-		/*FIRST TWEET SHOULD BE WRTITTEN WITH NORMAL OBJECT OUTPUT STREAM*/
-		try
-		{
-			Tweet streamWriterTweet=new Tweet();
-			ObjectOutputStream os_demo=new ObjectOutputStream(new FileOutputStream("tweets.ser"));
-			os_demo.writeObject(streamWriterTweet);
-			os_demo.close();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		/*File currentDir=new File(".");  //USE "." for current directory
-		File[] fileList=currentDir.listFiles();
-		for(File f: fileList)
-		{
-			System.out.println(f.getName());
-		}*/
-		
-		
-		
 		File dataDir=new File("data");
+		File outputDir=new File("trectext");
+		outputDir.mkdir();
+
 		FilenameFilter gzFiles;
 		gzFiles=(File dir, String name)->name.endsWith(".gz"); 
 		
@@ -56,25 +26,42 @@ public class ReadJSON {
 		for(File f: fileList)
 		{
 			//System.out.println(f.getName());
-			read(dataDir.getName()+"/"+f.getName(), slem);
+			read(dataDir.getName(), f.getName());
 		}
 		
 		//read("data/statuses.log.2013-03-28-09.gz");
+
+
+		makeIndex();
 		
 	}
-	
-	public static void read(String name, StanfordLemmatizer slem) 
+
+	public static void makeIndex()
 	{
+		String[] stopWordList =  {"a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "he", "in", "is", "it", "its", "of", "on", "that", "the", "to", "was", "were", "will", "with"};
+		
+		
+
+	}
+	
+	public static void read(String dir_name, String f_name) 
+	{
+
+		String input_file_name=dir_name+"/"+f_name;
+		String output_file_name="trectext/"+f_name.substring(0, f_name.lastIndexOf(".")+1)+"xml";
+
 		
 	    try  
 	    {   	
-	    	FileInputStream fos=new FileInputStream(name);
+	    	FileInputStream fos=new FileInputStream(input_file_name);
 	    	GZIPInputStream gos=new GZIPInputStream(fos);
 	    	BufferedReader reader=new BufferedReader(new InputStreamReader(gos));
 	    	
-	    	FileOutputStream fileStream=new FileOutputStream("tweets.ser", true);
-		    AppendingObjectOutputStream os=new AppendingObjectOutputStream(fileStream);
-	    	
+	    	BufferedWriter out = new BufferedWriter(new FileWriter(output_file_name, false));
+	    	out.close();  // to create new file every time
+	   
+	    	out = new BufferedWriter(new FileWriter(output_file_name, true)); 
+
 	    	String line;
 	    	while((line=reader.readLine())!=null)
 	    	{
@@ -82,12 +69,11 @@ public class ReadJSON {
 	    		{
 		    		Tweet t=new Tweet(line);
 		    		
-		    		if(!(t.content.equals("")) && Language.get_lang(t.content).equals("en"))
+		    		if(!(t.content.equals("")))
 		    		{
-		    			t.getLemmatized(slem);
-		    			os.writeObject(t);
+		    			out.write(t.getWritableDoc());
 		    		}
-		    		//t.printTweet();
+		    		
 	    		}
 	    		catch(ArrayIndexOutOfBoundsException e)
 	    		{
@@ -105,7 +91,7 @@ public class ReadJSON {
 	    	}
 	    	
 	    	reader.close();
-	    	os.close();
+	    	out.close();
 	    	
 	    } 
 		catch (IOException e) 
@@ -167,18 +153,15 @@ class Tweet implements Serializable{
 			this.date=0;
 			this.hour=0;
 			this.second=0;
-			this.minute=0;
 			this.year=0;
+			this.minute=0;
+			System.out.println(t);
 			
 		}
+	}
 		
-	}
 	
-	void getLemmatized(StanfordLemmatizer slem)
-	{
-		this.content=slem.lemmatize(this.content);
-	}
-	
+
 	String id;
 	
 	String month;
@@ -188,7 +171,7 @@ class Tweet implements Serializable{
 	int hour;
 	int minute;
 	int second;
-
+	int year;
 	String content;
 	
 	void printTweet()
@@ -198,50 +181,31 @@ class Tweet implements Serializable{
 		System.out.println("Time: "+this.hour+":"+this.minute+":"+this.second);
 		System.out.println("Content: "+this.content);
 	}
-}
 
-class AppendingObjectOutputStream extends ObjectOutputStream {
-
-	  public AppendingObjectOutputStream(FileOutputStream out) throws IOException {
-	    super(out);
-	  }
-
-	  @Override
-	  protected void writeStreamHeader() throws IOException {
-	    // do not write a header, but reset:
-	    // this line added after another question
-	    // showed a problem with the original
-	    reset();
-	  }
-
-	}
-
-class Language
-{
-	
-	static {
-		try
-		{
-			DetectorFactory.loadProfile("lib/ld/profiles");
-			System.out.println("Language Profiles Loaded");
-		}
-		catch(LangDetectException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	public static String get_lang(String sample)
+	String getHead()
 	{
-		try
-		{	
-			Detector d =DetectorFactory.create();
-			d.append(sample);
-			return (d.detect());
-		}
-		catch(LangDetectException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+
+		return this.id+"#"+this.date+"#"+this.month+"#"+this.year;
 	}
+
+	String getText()
+	{
+		return this.content;
+	}
+
+	String getWritableDoc()
+	{
+
+		return "<DOC>\n\t<DOCNO>"+this.getHead()+"</DOCNO>\n\t<TEXT>\n\t\t"+this.getText()+"\n\t</TEXT>\n</DOC>\n";
+		
+	}
+	
 }
+
+
+
+
+
+
+
+
